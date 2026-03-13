@@ -229,7 +229,7 @@
   // ─────────────────────────────────────────────
   // 🔧 CONFIGURACIÓN — reemplaza con tu URL real
   // ─────────────────────────────────────────────
-  const ZAPIER_WEBHOOK_URL = "https://hooks.zapier.com/hooks/catch/813823/uxc97vz";
+  const ZAPIER_WEBHOOK_URL = "https://hooks.zapier.com/hooks/catch/813823/uxc97vz/";
   // ─────────────────────────────────────────────
 
   let rowCount = 0;
@@ -240,7 +240,7 @@
     const tr = document.createElement("tr");
     tr.id = "row-" + rowCount;
     const cols = ["org_id","id_user","doctor","id_cons_abierto","cons_migrar","id_cons_migrar","org_id_migrar"];
-    const placeholders = ["####","####","Dr. Xxxx","####","Clínica X","####","####"]
+    const placeholders = ["98617","92340","José Torres","40743","Clínica X","46019","111426"];
     let html = "";
     cols.forEach((c, i) => {
       html += `<td><input type="text" name="${c}_${rowCount}" placeholder="${placeholders[i]}"/></td>`;
@@ -355,13 +355,12 @@
     };
 
     try {
-      const response = await fetch(ZAPIER_WEBHOOK_URL, {
+      await fetch(ZAPIER_WEBHOOK_URL, {
         method: "POST",
+        mode: "no-cors",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
       });
-
-      if (!response.ok) throw new Error("HTTP " + response.status);
 
       // Mostrar éxito
       const n = rows.length;
