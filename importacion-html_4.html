@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nueva Importación</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f3f4f6; min-height: 100vh; padding: 32px 16px; color: #111827; }
+    .container { max-width: 1100px; margin: 0 auto; }
+
+    .header { margin-bottom: 24px; }
+    .steps { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #9ca3af; margin-bottom: 8px; }
+    .steps .active { color: #7c3aed; font-weight: 700; }
+    h1 { font-size: 24px; font-weight: 800; color: #111827; }
+    .subtitle { font-size: 14px; color: #6b7280; margin-top: 4px; }
+
+    .card { background: #fff; border-radius: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); border: 1px solid #e5e7eb; padding: 28px; }
+
+    .field { margin-bottom: 20px; }
+    label { display: block; font-size: 13px; font-weight: 700; color: #374151; margin-bottom: 4px; }
+    .hint { font-size: 11px; color: #9ca3af; margin-bottom: 6px; }
+    input[type="text"], select, textarea {
+      width: 100%; border: 1px solid #d1d5db; border-radius: 8px;
+      padding: 9px 12px; font-size: 14px; color: #111827;
+      transition: border 0.15s, box-shadow 0.15s; outline: none;
+      font-family: inherit;
+    }
+    input[type="text"]:focus, select:focus, textarea:focus {
+      border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,0.1);
+    }
+    input.error, select.error, textarea.error { border-color: #ef4444; background: #fef2f2; }
+    .error-msg { color: #ef4444; font-size: 11px; margin-top: 4px; display: none; }
+    .error-msg.show { display: block; }
+    .req { color: #ef4444; }
+    .opt { color: #9ca3af; font-weight: 400; }
+    textarea { resize: vertical; min-height: 80px; }
+    select { background: #fff; cursor: pointer; }
+
+    .divider { border: none; border-top: 1px solid #f3f4f6; margin: 24px 0; }
+
+    .table-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .table-header h2 { font-size: 15px; font-weight: 700; color: #111827; }
+    .table-header p { font-size: 12px; color: #9ca3af; margin-top: 2px; }
+    .btn-add-top { background: #fff; border: 1px solid #7c3aed; color: #7c3aed; border-radius: 8px; padding: 7px 14px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+    .btn-add-top:hover { background: #f5f3ff; }
+
+    .table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid #e5e7eb; width: 100%; }
+    table { width: 100%; min-width: 1021px; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
+    table colgroup col:nth-child(1) { width: 90px; }
+    table colgroup col:nth-child(2) { width: 90px; }
+    table colgroup col:nth-child(3) { width: 150px; }
+    table colgroup col:nth-child(4) { width: 175px; }
+    table colgroup col:nth-child(5) { width: 175px; }
+    table colgroup col:nth-child(6) { width: 175px; }
+    table colgroup col:nth-child(7) { width: 130px; }
+    table colgroup col:nth-child(8) { width: 36px; }
+    thead tr { background: #f9fafb; }
+    th { text-align: left; padding: 10px 12px; font-size: 11px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.04em; border-bottom: 1px solid #e5e7eb; white-space: nowrap; }
+    td { border-bottom: 1px solid #f3f4f6; padding: 6px 6px; }
+    tr:last-child td { border-bottom: none; }
+    tr:nth-child(even) { background: #fafafa; }
+    td input { border: 1px solid transparent; border-radius: 6px; padding: 6px 8px; font-size: 13px; width: 100%; background: transparent; transition: border 0.15s, background 0.15s; }
+    td input:focus { border-color: #7c3aed; background: #f5f3ff; outline: none; }
+    .td-remove { width: 36px; text-align: center; }
+    .btn-remove { background: none; border: none; color: #d1d5db; font-size: 18px; cursor: pointer; line-height: 1; padding: 4px; border-radius: 4px; transition: color 0.15s; }
+    .btn-remove:hover { color: #ef4444; }
+
+    .table-footer { display: flex; align-items: center; gap: 12px; margin-top: 10px; }
+    .btn-add-row { background: none; border: none; color: #7c3aed; font-size: 13px; font-weight: 600; cursor: pointer; padding: 4px 0; }
+    .btn-add-row:hover { text-decoration: underline; }
+    .row-count { font-size: 12px; color: #9ca3af; }
+    .table-error { color: #ef4444; font-size: 12px; margin-top: 6px; display: none; }
+    .table-error.show { display: block; }
+
+    .warning { background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px; padding: 10px 14px; display: flex; gap: 8px; align-items: flex-start; margin-top: 20px; }
+    .warning span { font-size: 16px; }
+    .warning p { font-size: 12px; color: #92400e; }
+
+    .actions { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; }
+    .btn-back { background: #fff; border: 1px solid #e5e7eb; color: #6b7280; border-radius: 8px; padding: 9px 18px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+    .btn-back:hover { background: #f9fafb; }
+    .btn-next, .btn-submit { background: #7c3aed; border: none; color: #fff; border-radius: 8px; padding: 9px 22px; font-size: 14px; font-weight: 700; cursor: pointer; transition: background 0.15s; }
+    .btn-next:hover { background: #6d28d9; }
+    .btn-submit:hover:not(:disabled) { background: #6d28d9; }
+    .btn-submit:disabled { background: #a78bfa; cursor: not-allowed; }
+
+    .success { display: none; text-align: center; padding: 48px 24px; }
+    .success.show { display: block; }
+    .success-icon { font-size: 56px; margin-bottom: 16px; }
+    .success h2 { font-size: 20px; font-weight: 800; margin-bottom: 8px; }
+    .success p { font-size: 14px; color: #6b7280; margin-bottom: 20px; }
+    .ticket-badge { background: #f5f3ff; border-radius: 12px; padding: 16px 24px; display: inline-block; margin-bottom: 20px; }
+    .ticket-badge .label { font-size: 11px; color: #9ca3af; margin-bottom: 4px; }
+    .ticket-badge .number { font-size: 28px; font-weight: 800; color: #7c3aed; }
+    .ticket-badge .meta { font-size: 12px; color: #6b7280; margin-top: 4px; }
+    .btn-reset { background: none; border: none; color: #7c3aed; font-size: 13px; text-decoration: underline; cursor: pointer; }
+
+    .error-banner { display: none; background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px; padding: 10px 14px; margin-top: 16px; font-size: 13px; color: #b91c1c; }
+    .error-banner.show { display: block; }
+
+    .step { display: none; }
+    .step.active { display: block; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="steps">
+      <span id="step-label-1" class="active">① Contexto</span>
+      <span>→</span>
+      <span id="step-label-2">② Datos de importación</span>
+    </div>
+    <h1>Nueva Importación</h1>
+    <p class="subtitle">Completa los campos y la tabla de datos para generar el ticket en Jira.</p>
+  </div>
+
+  <div class="card">
+
+    <!-- SUCCESS -->
+    <div class="success" id="success">
+      <div class="success-icon">✅</div>
+      <h2>¡Solicitud enviada!</h2>
+      <p>Tu ticket fue creado en Jira exitosamente.</p>
+      <div class="ticket-badge">
+        <div class="label">Ticket generado</div>
+        <div class="number" id="success-ticket-key">—</div>
+        <div class="meta" id="success-meta"></div>
+      </div>
+      <br/>
+      <p style="font-size:12px;color:#9ca3af;margin-bottom:16px;">Recibirás una confirmación en Slack.</p>
+      <button class="btn-reset" onclick="resetForm()">Nueva solicitud</button>
+    </div>
+
+    <!-- STEP 1 -->
+    <div class="step active" id="step1">
+      <div class="field">
+        <label>Tipo de importación <span class="req">*</span></label>
+        <select id="tipo">
+          <option value="">Selecciona una opción</option>
+          <option>Migración de consultorio</option>
+          <option>Migración de doctor</option>
+          <option>Migración de organización</option>
+          <option>Otro</option>
+        </select>
+        <div class="error-msg" id="err-tipo">Campo obligatorio</div>
+      </div>
+
+      <div class="field">
+        <label>Link documento firmado (Google Drive) <span class="req">*</span></label>
+        <div class="hint">Sube el PDF, imagen o .docx a Google Drive y pega el link aquí</div>
+        <input type="text" id="doc_firmado" placeholder="https://drive.google.com/..."/>
+        <div class="error-msg" id="err-doc">Campo obligatorio</div>
+      </div>
+
+      <div class="field">
+        <label>Link adicional <span class="opt">(opcional)</span></label>
+        <input type="text" id="link_adicional" placeholder="https://..."/>
+      </div>
+
+      <div class="field">
+        <label>Comentarios <span class="req">*</span></label>
+        <textarea id="comentarios" placeholder="Agrega cualquier detalle relevante para esta importación..."></textarea>
+        <div class="error-msg" id="err-comentarios">Campo obligatorio</div>
+      </div>
+
+      <div class="actions">
+        <div></div>
+        <button class="btn-next" onclick="goStep2()">Siguiente →</button>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="step" id="step2">
+      <div class="table-header">
+        <div>
+          <h2>Tabla de datos</h2>
+          <p>Agrega una fila por cada registro a importar</p>
+        </div>
+        <button class="btn-add-top" onclick="addRow()">+ Agregar fila</button>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <colgroup>
+            <col/><col/><col/><col/><col/><col/><col/><col/>
+          </colgroup>
+          <thead>
+            <tr>
+              <th>Org ID</th>
+              <th>ID User</th>
+              <th>Doctor</th>
+              <th>ID Consultorio Abierto</th>
+              <th>Consultorio a Migrar</th>
+              <th>ID Consultorio a Migrar</th>
+              <th>Org ID a Migrar</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="tabla-body"></tbody>
+        </table>
+      </div>
+
+      <div class="table-footer">
+        <button class="btn-add-row" onclick="addRow()">+ Agregar otra fila</button>
+        <span class="row-count" id="row-count">1 fila</span>
+      </div>
+      <div class="table-error" id="err-tabla">Agrega al menos una fila con datos</div>
+
+      <div class="warning">
+        <span>⚠️</span>
+        <p>No olvide asociar los doctores al ORG destino</p>
+      </div>
+
+      <div class="error-banner" id="err-banner">
+        Hubo un error al enviar la solicitud. Por favor intenta de nuevo.
+      </div>
+
+      <div class="actions">
+        <button class="btn-back" onclick="goStep1()">← Regresar</button>
+        <button class="btn-submit" id="btn-submit" onclick="submitForm()">Enviar solicitud</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // ─────────────────────────────────────────────
+  // 🔧 CONFIGURACIÓN — reemplaza con tu URL real
+  // ─────────────────────────────────────────────
+  const ZAPIER_WEBHOOK_URL = "https://hooks.zapier.com/hooks/catch/813823/uxc97vz";
+  // ─────────────────────────────────────────────
+
+  let rowCount = 0;
+
+  function addRow() {
+    rowCount++;
+    const tbody = document.getElementById("tabla-body");
+    const tr = document.createElement("tr");
+    tr.id = "row-" + rowCount;
+    const cols = ["org_id","id_user","doctor","id_cons_abierto","cons_migrar","id_cons_migrar","org_id_migrar"];
+    const placeholders = ["####","####","Dr. Xxxx","####","Clínica X","####","####"]
+    let html = "";
+    cols.forEach((c, i) => {
+      html += `<td><input type="text" name="${c}_${rowCount}" placeholder="${placeholders[i]}"/></td>`;
+    });
+    html += `<td class="td-remove"><button class="btn-remove" onclick="removeRow(${rowCount})" title="Eliminar fila">×</button></td>`;
+    tr.innerHTML = html;
+    tbody.appendChild(tr);
+    updateCount();
+    document.getElementById("err-tabla").classList.remove("show");
+  }
+
+  function removeRow(id) {
+    const rows = document.querySelectorAll("#tabla-body tr");
+    if (rows.length <= 1) return;
+    document.getElementById("row-" + id).remove();
+    updateCount();
+  }
+
+  function updateCount() {
+    const n = document.querySelectorAll("#tabla-body tr").length;
+    document.getElementById("row-count").textContent = n + " fila" + (n !== 1 ? "s" : "");
+  }
+
+  function goStep2() {
+    let valid = true;
+    [["tipo", "err-tipo"], ["doc_firmado", "err-doc"], ["comentarios", "err-comentarios"]].forEach(([id, errId]) => {
+      const el = document.getElementById(id);
+      if (!el.value.trim()) {
+        el.classList.add("error");
+        document.getElementById(errId).classList.add("show");
+        valid = false;
+      } else {
+        el.classList.remove("error");
+        document.getElementById(errId).classList.remove("show");
+      }
+    });
+    if (!valid) return;
+    document.getElementById("step1").classList.remove("active");
+    document.getElementById("step2").classList.add("active");
+    document.getElementById("step-label-1").classList.remove("active");
+    document.getElementById("step-label-2").classList.add("active");
+  }
+
+  function goStep1() {
+    document.getElementById("step2").classList.remove("active");
+    document.getElementById("step1").classList.add("active");
+    document.getElementById("step-label-2").classList.remove("active");
+    document.getElementById("step-label-1").classList.add("active");
+  }
+
+  function collectTableData() {
+    const rows = document.querySelectorAll("#tabla-body tr");
+    const cols = ["org_id","id_user","doctor","id_cons_abierto","cons_migrar","id_cons_migrar","org_id_migrar"];
+    const colHeaders = ["Org ID","ID User","Doctor","ID Consultorio Abierto","Consultorio a Migrar","ID Consultorio a Migrar","Org ID a Migrar"];
+    const data = [];
+    rows.forEach(row => {
+      const inputs = row.querySelectorAll("input");
+      const rowObj = {};
+      cols.forEach((c, i) => { rowObj[c] = inputs[i] ? inputs[i].value.trim() : ""; });
+      data.push(rowObj);
+    });
+
+    // Formato tabla para descripción Jira (wiki markup)
+    let tableWiki = "|| " + colHeaders.join(" || ") + " ||\n";
+    data.forEach(r => {
+      tableWiki += "| " + cols.map(c => r[c] || " ").join(" | ") + " |\n";
+    });
+
+    return { data, tableWiki };
+  }
+
+  async function submitForm() {
+    // Validar tabla
+    const rows = document.querySelectorAll("#tabla-body tr");
+    let hasData = false;
+    rows.forEach(r => {
+      r.querySelectorAll("input").forEach(i => { if (i.value.trim()) hasData = true; });
+    });
+    if (!hasData) {
+      document.getElementById("err-tabla").classList.add("show");
+      return;
+    }
+
+    const btn = document.getElementById("btn-submit");
+    btn.disabled = true;
+    btn.textContent = "Enviando...";
+    document.getElementById("err-banner").classList.remove("show");
+
+    const tipo = document.getElementById("tipo").value;
+    const doc_firmado = document.getElementById("doc_firmado").value.trim();
+    const link_adicional = document.getElementById("link_adicional").value.trim();
+    const comentarios = document.getElementById("comentarios").value.trim();
+    const fecha = new Date().toLocaleDateString("es-MX");
+    const { data: tablaData, tableWiki } = collectTableData();
+
+    const payload = {
+      tipo,
+      doc_firmado,
+      link_adicional,
+      comentarios,
+      fecha,
+      tabla_rows: tablaData,         // array de objetos (útil para Zapier Formatter)
+      tabla_wiki: tableWiki,          // tabla en formato Jira Wiki Markup
+      jira_summary: `[Importación] ${tipo} — ${fecha}`,
+      jira_description:
+        `*Tipo de importación:* ${tipo}\n` +
+        `*Fecha:* ${fecha}\n` +
+        `*Documento firmado:* [Ver documento|${doc_firmado}]\n` +
+        (link_adicional ? `*Link adicional:* [Ver|${link_adicional}]\n` : "") +
+        `\n*Comentarios:*\n${comentarios}\n\n` +
+        `*Tabla de datos:*\n${tableWiki}`
+    };
+
+    try {
+      const response = await fetch(ZAPIER_WEBHOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) throw new Error("HTTP " + response.status);
+
+      // Mostrar éxito
+      const n = rows.length;
+      document.getElementById("success-ticket-key").textContent = "—";
+      document.getElementById("success-meta").textContent = tipo + " · " + fecha + " · " + n + " fila" + (n !== 1 ? "s" : "");
+      document.getElementById("step2").classList.remove("active");
+      document.getElementById("success").classList.add("show");
+
+    } catch (err) {
+      document.getElementById("err-banner").classList.add("show");
+      btn.disabled = false;
+      btn.textContent = "Enviar solicitud";
+    }
+  }
+
+  function resetForm() {
+    document.getElementById("success").classList.remove("show");
+    document.getElementById("step1").classList.add("active");
+    document.getElementById("tipo").value = "";
+    document.getElementById("doc_firmado").value = "";
+    document.getElementById("link_adicional").value = "";
+    document.getElementById("comentarios").value = "";
+    document.getElementById("tabla-body").innerHTML = "";
+    rowCount = 0;
+    addRow();
+    document.getElementById("step-label-1").classList.add("active");
+    document.getElementById("step-label-2").classList.remove("active");
+    document.getElementById("btn-submit").disabled = false;
+    document.getElementById("btn-submit").textContent = "Enviar solicitud";
+  }
+
+  // Init
+  addRow();
+</script>
+</body>
+</html>
