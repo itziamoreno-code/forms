@@ -149,13 +149,20 @@
       <div class="field">
         <label>Link documento firmado (Google Drive) <span class="req">*</span></label>
         <div class="hint">Sube el PDF, imagen o .docx a Google Drive y pega el link aquí</div>
-        <input type="text" id="doc_firmado" placeholder="https://drive.google.com/..."/>
+        <input type="text" id="doc_firmado" placeholder="https://drive.google.com/documento_firmado"/>
         <div class="error-msg" id="err-doc">Campo obligatorio</div>
       </div>
 
       <div class="field">
+        <label>Link Google Spreadsheets (Google Drive) <span class="req">*</span></label>
+        <div class="hint">Sube el archivo a Google Drive y pega el link aquí</div>
+        <input type="text" id="link_spreadsheet" placeholder="https://drive.google.com/google_spreadsheet"/>
+        <div class="error-msg" id="err-spreadsheet">Campo obligatorio</div>
+      </div>
+
+      <div class="field">
         <label>Link adicional <span class="opt">(opcional)</span></label>
-        <input type="text" id="link_adicional" placeholder="https://..."/>
+        <input type="text" id="link_adicional" placeholder="https://drive.google.com/link_adicional"/>
       </div>
 
       <div class="field">
@@ -229,7 +236,7 @@
   // ─────────────────────────────────────────────
   // 🔧 CONFIGURACIÓN — reemplaza con tu URL real
   // ─────────────────────────────────────────────
-  const ZAPIER_WEBHOOK_URL = "https://hooks.zapier.com/hooks/catch/813823/uxc97vz/";
+  const ZAPIER_WEBHOOK_URL = "https://hooks.zapier.com/hooks/catch/813823/uxc97vz";
   // ─────────────────────────────────────────────
 
   let rowCount = 0;
@@ -240,7 +247,7 @@
     const tr = document.createElement("tr");
     tr.id = "row-" + rowCount;
     const cols = ["org_id","id_user","doctor","id_cons_abierto","cons_migrar","id_cons_migrar","org_id_migrar"];
-    const placeholders = ["98617","92340","José Torres","40743","Clínica X","46019","111426"];
+    const placeholders = ["####","####","Dr. Xxxx","####","Clínica X","####","####"]
     let html = "";
     cols.forEach((c, i) => {
       html += `<td><input type="text" name="${c}_${rowCount}" placeholder="${placeholders[i]}"/></td>`;
@@ -266,7 +273,7 @@
 
   function goStep2() {
     let valid = true;
-    [["tipo", "err-tipo"], ["doc_firmado", "err-doc"], ["comentarios", "err-comentarios"]].forEach(([id, errId]) => {
+    [["tipo", "err-tipo"], ["doc_firmado", "err-doc"], ["link_spreadsheet", "err-spreadsheet"], ["comentarios", "err-comentarios"]].forEach(([id, errId]) => {
       const el = document.getElementById(id);
       if (!el.value.trim()) {
         el.classList.add("error");
@@ -331,6 +338,7 @@
 
     const tipo = document.getElementById("tipo").value;
     const doc_firmado = document.getElementById("doc_firmado").value.trim();
+    const link_spreadsheet = document.getElementById("link_spreadsheet").value.trim();
     const link_adicional = document.getElementById("link_adicional").value.trim();
     const comentarios = document.getElementById("comentarios").value.trim();
     const fecha = new Date().toLocaleDateString("es-MX");
@@ -339,16 +347,18 @@
     const payload = {
       tipo,
       doc_firmado,
+      link_spreadsheet,
       link_adicional,
       comentarios,
       fecha,
-      tabla_rows: tablaData,         // array de objetos (útil para Zapier Formatter)
-      tabla_wiki: tableWiki,          // tabla en formato Jira Wiki Markup
-      jira_summary: `[Importación] ${tipo} — ${fecha}`,
+      tabla_rows: tablaData,
+      tabla_wiki: tableWiki,
+      jira_summary: `[${tipo}] - ${tablaData.map(r => r.cons_migrar).filter(Boolean).join(', ')}`,
       jira_description:
         `*Tipo de importación:* ${tipo}\n` +
         `*Fecha:* ${fecha}\n` +
         `*Documento firmado:* [Ver documento|${doc_firmado}]\n` +
+        `*Google Spreadsheets:* [Ver spreadsheet|${link_spreadsheet}]\n` +
         (link_adicional ? `*Link adicional:* [Ver|${link_adicional}]\n` : "") +
         `\n*Comentarios:*\n${comentarios}\n\n` +
         `*Tabla de datos:*\n${tableWiki}`
@@ -381,6 +391,7 @@
     document.getElementById("step1").classList.add("active");
     document.getElementById("tipo").value = "";
     document.getElementById("doc_firmado").value = "";
+    document.getElementById("link_spreadsheet").value = "";
     document.getElementById("link_adicional").value = "";
     document.getElementById("comentarios").value = "";
     document.getElementById("tabla-body").innerHTML = "";
