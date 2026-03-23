@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <link rel="icon" type="image/png" href="Logo_Huli_v2-02.png"/>
-  <title>Solicitud de Importación</title>
+  <title>Nueva Importación</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f3f4f6; min-height: 100vh; padding: 32px 16px; color: #111827; }
@@ -163,10 +162,19 @@
       </div>
 
       <div class="field">
-        <label>Link documento firmado (Google Drive) <span class="req">*</span></label>
-        <div class="hint">Sube el PDF, imagen o .docx a Google Drive y pega el link aquí</div>
-        <input type="text" id="doc_firmado" placeholder="https://drive.google.com/documento_firmado"/>
-        <div class="error-msg" id="err-doc">Campo obligatorio</div>
+        <label>Documento firmado <span class="req">*</span></label>
+        <div class="hint">Sube el PDF, imagen o .docx a la carpeta de Drive antes de continuar</div>
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 4px;">
+          <a href="https://drive.google.com/drive/folders/1gnqx5gHW7sqPzw0l1YTKhP6A8-R6BSXk" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; background: #fff; border: 1px solid #7c3aed; color: #7c3aed; border-radius: 8px; padding: 8px 16px; font-size: 13px; font-weight: 600; text-decoration: none; transition: background 0.15s;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Abrir carpeta en Drive
+          </a>
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 400; color: #374151; cursor: pointer; margin: 0;">
+            <input type="checkbox" id="doc_confirmado" style="width: 16px; height: 16px; accent-color: #7c3aed; cursor: pointer;"/>
+            Ya subí el documento
+          </label>
+        </div>
+        <div class="error-msg" id="err-doc">Confirma que subiste el documento</div>
       </div>
 
       <div class="field">
@@ -289,7 +297,7 @@
 
   function goStep2() {
     let valid = true;
-    [["agente", "err-agente"], ["tipo", "err-tipo"], ["doc_firmado", "err-doc"], ["link_spreadsheet", "err-spreadsheet"], ["comentarios", "err-comentarios"]].forEach(([id, errId]) => {
+    [["agente", "err-agente"], ["tipo", "err-tipo"], ["link_spreadsheet", "err-spreadsheet"], ["comentarios", "err-comentarios"]].forEach(([id, errId]) => {
       const el = document.getElementById(id);
       const wrap = document.getElementById(id + "-wrap");
       if (!el.value.trim()) {
@@ -301,6 +309,13 @@
         document.getElementById(errId).classList.remove("show");
       }
     });
+    const docCheck = document.getElementById("doc_confirmado");
+    if (!docCheck.checked) {
+      document.getElementById("err-doc").classList.add("show");
+      valid = false;
+    } else {
+      document.getElementById("err-doc").classList.remove("show");
+    }
     if (!valid) return;
     document.getElementById("step1").classList.remove("active");
     document.getElementById("step2").classList.add("active");
@@ -355,7 +370,7 @@
 
     const agente = document.getElementById("agente").value.trim() + "@huli.io";
     const tipo = document.getElementById("tipo").value;
-    const doc_firmado = document.getElementById("doc_firmado").value.trim();
+    const doc_firmado = "https://drive.google.com/drive/folders/1gnqx5gHW7sqPzw0l1YTKhP6A8-R6BSXk";
     const link_spreadsheet = document.getElementById("link_spreadsheet").value.trim();
     const link_adicional = document.getElementById("link_adicional").value.trim();
     const comentarios = document.getElementById("comentarios").value.trim();
@@ -412,6 +427,8 @@
     document.getElementById("agente").value = "";
     document.getElementById("tipo").value = "";
     document.getElementById("doc_firmado").value = "";
+    document.getElementById("doc_confirmado").checked = false;
+    document.getElementById("err-doc").classList.remove("show");
     document.getElementById("link_spreadsheet").value = "";
     document.getElementById("link_adicional").value = "";
     document.getElementById("comentarios").value = "";
