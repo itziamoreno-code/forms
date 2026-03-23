@@ -178,13 +178,6 @@
       </div>
 
       <div class="field">
-        <label>Link Google Spreadsheets (Google Drive) <span class="req">*</span></label>
-        <div class="hint">Sube el archivo a Google Drive y pega el link aquí</div>
-        <input type="text" id="link_spreadsheet" placeholder="https://drive.google.com/google_spreadsheet"/>
-        <div class="error-msg" id="err-spreadsheet">Campo obligatorio</div>
-      </div>
-
-      <div class="field">
         <label>Link adicional <span class="opt">(opcional)</span></label>
         <input type="text" id="link_adicional" placeholder="https://drive.google.com/link_adicional"/>
       </div>
@@ -297,7 +290,7 @@
 
   function goStep2() {
     let valid = true;
-    [["agente", "err-agente"], ["tipo", "err-tipo"], ["link_spreadsheet", "err-spreadsheet"], ["comentarios", "err-comentarios"]].forEach(([id, errId]) => {
+    [["agente", "err-agente"], ["tipo", "err-tipo"], ["comentarios", "err-comentarios"]].forEach(([id, errId]) => {
       const el = document.getElementById(id);
       const wrap = document.getElementById(id + "-wrap");
       if (!el.value.trim()) {
@@ -371,7 +364,6 @@
     const agente = document.getElementById("agente").value.trim() + "@huli.io";
     const tipo = document.getElementById("tipo").value;
     const doc_firmado = "https://drive.google.com/drive/folders/1gnqx5gHW7sqPzw0l1YTKhP6A8-R6BSXk";
-    const link_spreadsheet = document.getElementById("link_spreadsheet").value.trim();
     const link_adicional = document.getElementById("link_adicional").value.trim();
     const comentarios = document.getElementById("comentarios").value.trim();
     const fecha = new Date().toLocaleDateString("es-MX");
@@ -381,7 +373,6 @@
       agente,
       tipo,
       doc_firmado,
-      link_spreadsheet,
       link_adicional,
       comentarios,
       fecha,
@@ -393,7 +384,6 @@
         `*Tipo de importación:* ${tipo}\n` +
         `*Fecha:* ${fecha}\n` +
         `*Documento firmado:* [Ver documento|${doc_firmado}]\n` +
-        `*Google Spreadsheets:* [Ver spreadsheet|${link_spreadsheet}]\n` +
         (link_adicional ? `*Link adicional:* [Ver|${link_adicional}]\n` : "") +
         `\n*Comentarios:*\n${comentarios}\n\n` +
         `*Tabla de datos:*\n${tableWiki}`
@@ -429,7 +419,6 @@
     document.getElementById("doc_firmado").value = "";
     document.getElementById("doc_confirmado").checked = false;
     document.getElementById("err-doc").classList.remove("show");
-    document.getElementById("link_spreadsheet").value = "";
     document.getElementById("link_adicional").value = "";
     document.getElementById("comentarios").value = "";
     document.getElementById("tabla-body").innerHTML = "";
